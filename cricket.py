@@ -1,5 +1,6 @@
 import random
 import time
+print("MADE BY UDAY VERMA")
 print("Welcome to Cricket with PC")
 player1 = input("Enter the name of Player : \n")
 print("OnGoing match", player1,"V/S PC\n" )
