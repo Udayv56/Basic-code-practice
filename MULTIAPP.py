@@ -747,6 +747,9 @@ class App:
         self.joke_button = ttk.Button(self.simulators_window, text="Tell Me a Joke", command=self.tell_joke, style="Simulators.TButton")
         self.joke_button.pack(pady=5)
 
+        self.math_button = ttk.Button(self.simulators_window, text="Maths challenge", command=self.maths_challenge, style="Simulators.TButton")
+        self.math_button.pack(pady=5)
+
 # Simulator functions
     def roll_dice(self):
         result = random.randint(1, 6)
@@ -775,6 +778,83 @@ class App:
 
         self.label = tk.Label(self.result_window, text=result)
         self.label.pack(pady=20)
+    def maths_challenge(self):
+        global num1, num2
+        
+        def generate_problem():
+            # Generate a new math problem
+            num1 = random.randint(1, 20)
+            num2 = random.randint(1, 20)
+            problem_text.config(text="What is " + str(num1) + " * " + str(num2) + "?")
+            answer_entry.delete(0, tk.END)
+            answer_entry.focus_set()
+
+            return num1, num2
+
+        def check_answer():
+            global num1, num2
+            # Get the user's answer
+            answer = answer_entry.get()
+
+            # Check if the answer is correct
+            try:
+                if int(answer) == num1 * num2:
+                    response_text.config(text="Correct!")
+                    score.set(score.get() + 1)
+                else:
+                    response_text.config(text="Incorrect. The answer is " + str(num1 * num2) + ".")
+            except ValueError:
+                response_text.config(text="Please enter a valid number.")
+
+            # Generate a new problem
+            num1, num2 = generate_problem()
+
+        def countdown(remaining):
+            if remaining <= 0:
+                timer_text.config(text="Time's up!")
+                answer_entry.config(state=tk.DISABLED)
+                submit_button.config(state=tk.DISABLED)
+                response_text.config(text="Final score: " + str(score.get()))
+            else:
+                timer_text.config(text="Time remaining: " + str(remaining) + " seconds")
+                root.after(1000, countdown, remaining - 1)
+
+        # Create the main window
+        root = tk.Tk()
+        root.title("Maths Challenge")
+
+        # Set up the math problem frame
+        problem_frame = tk.Frame(root)
+        problem_frame.pack()
+        problem_text = tk.Label(problem_frame, text="")
+        problem_text.pack(side=tk.LEFT)
+        answer_entry = tk.Entry(problem_frame)
+        answer_entry.pack(side=tk.LEFT)
+
+        # Set up the submit button
+        submit_button = tk.Button(root, text="Submit", command=check_answer)
+        submit_button.pack()
+
+        # Set up the response frame
+        response_frame = tk.Frame(root)
+        response_frame.pack()
+        response_text = tk.Label(response_frame, text="")
+        response_text.pack()
+
+        # Set up the timer frame
+        timer_frame = tk.Frame(root)
+        timer_frame.pack()
+        score = tk.IntVar()
+        score.set(0)
+        timer_text = tk.Label(timer_frame, text="Time remaining: 10 seconds")
+        timer_text.pack()
+
+        # Start the game
+        num1, num2 = generate_problem()
+        countdown(10)
+
+        # Run the application
+        root.mainloop()
 ###########################################
     def show_apps(self):
         self.apps_window = tk.Toplevel(self.master)
@@ -929,7 +1009,7 @@ class App:
             calendar_text.insert(tk.END, cal_year)
 
             # Highlight today's date
-            today = cal.datetime.date.today()
+            today = dt.date.today()
             year_str = str(year)
             month_str = str(today.month).rjust(2, "0")
             day_str = str(today.day).rjust(2, "0")
@@ -961,7 +1041,7 @@ class App:
         root.title("Calendar")
         root.geometry("400x400")
 
-        current_year = cal.datetime.datetime.now().year
+        current_year = dt.datetime.now().year
 
         year_frame = tk.Frame(root)
         year_frame.pack(pady=10)
@@ -998,7 +1078,7 @@ class App:
             # Display translated text in target text box
             target_textbox.config(state="normal")
             target_textbox.delete("1.0", "end")
-            target_textbox.insert("1.0", translated.text)
+            target_textbox.insert("1.0", translated.text) # type: ignore
             target_textbox.config(state="disabled")
 
         # Create widgets
