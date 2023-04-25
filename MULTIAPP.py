@@ -435,7 +435,7 @@ class App:
     def show_tools(self):
         self.tools_window = tk.Toplevel(self.master)
         self.tools_window.title("Basic Tools")
-        self.tools_window.geometry("300x250")
+        self.tools_window.geometry("300x350")
         
         self.label = tk.Label(self.tools_window, text="Choose a tool:")
         self.label.pack(pady=10)
@@ -449,10 +449,10 @@ class App:
         self.password_generator_button = tk.Button(self.tools_window, text="Password Generator", command=self.show_password_generator, font=("Arial", 12), bg="lightyellow", fg="black", padx=10, pady=5, borderwidth=2, relief="raised")
         self.password_generator_button.pack(pady=5)
 
-        self.interest_calculator_button = tk.Button(self.tools_window, text="Simple and Compound Interest", command=self.show_interest_calculator, font=("Arial", 12), bg="orange", fg="black", padx=10, pady=5, borderwidth=2, relief="raised")
+        self.interest_calculator_button = tk.Button(self.tools_window, text="Compound Interest calculator", command=self.show_interest_calculator, font=("Arial", 12), bg="orange", fg="black", padx=10, pady=5, borderwidth=2, relief="raised")
         self.interest_calculator_button.pack(pady=5)
 
-        self.calculator_button = tk.Button(self.tools_window, text="Calculator", command=self.show_calculator, font=("Arial", 12), bg="pink", fg="black", padx=10, pady=5, borderwidth=2, relief="raised")
+        self.calculator_button = tk.Button(self.tools_window, text="Calculator", command=self.cal, font=("Arial", 12), bg="pink", fg="black", padx=10, pady=5, borderwidth=2, relief="raised")
         self.calculator_button.pack(pady=5)
 
 #tools functions
@@ -599,12 +599,13 @@ class App:
             rate = float(rate_entry.get())
             time = float(time_entry.get())
 
-            if interest_type.get() == "Simple":
-                interest = (principal * rate * time) / 100
+            if interest_type.get() == "Compound":
+                interest =  principal * ((1 + rate / 100) ** time - 1)
             else:
                 interest = principal * ((1 + rate / 100) ** time - 1)
-                
+
             result_label.config(text=f"Interest: {interest:.2f}")
+
 
         root = tk.Tk()
         root.title("Interest Calculator")
@@ -631,9 +632,9 @@ class App:
         interest_type_label = tk.Label(root, text="Select Interest Type:")
         interest_type_label.pack(pady=10)
 
-        interest_type = tk.StringVar(value="Simple")
-        simple_interest_radio = tk.Radiobutton(root, text="Simple", variable=interest_type, value="Simple")
-        simple_interest_radio.pack()
+        interest_type = tk.StringVar(value="Compound")
+        # simple_interest_radio = tk.Radiobutton(root, text="Simple", variable=interest_type, value="Simple")
+        # simple_interest_radio.pack()
 
         compound_interest_radio = tk.Radiobutton(root, text="Compound", variable=interest_type, value="Compound")
         compound_interest_radio.pack()
@@ -645,81 +646,131 @@ class App:
         result_label.pack()
 
         root.mainloop()  
-    def show_calculator(self):
-        
+    def cal(self):
+        class ScientificCalculator:
+            def __init__(self, master):
+                self.master = master
+                master.title("Scientific Calculator")
+                master.resizable(False, False)
+                master.config(bg='black')
 
-        def calculate():
-            try:
-                result = eval(entry.get())
-                entry.delete(0, tk.END)
-                entry.insert(0, result)
-            except:
-                entry.delete(0, tk.END)
-                entry.insert(0, "Error")
+                # Create entry box to display numbers
+                self.entry = tk.Entry(master, width=32, font=('Arial', 16), justify='right', bd=0, bg='white')
+                self.entry.grid(row=0, column=0, columnspan=6, padx=5, pady=5, sticky='nsew')
+                self.entry.focus_set()
 
-        def clear():
-            entry.delete(0, tk.END)
+                # Create buttons for numbers and operators
+                buttons = ['(', ')', 'AC', 'sin', 'cos', 'tan',
+                        '7', '8', '9', 'sqrt', 'log', 'ln',
+                        '4', '5', '6', 'x^2', 'x^y', 'e^x',
+                        '1', '2', '3', '1/x', 'pi', 'x!',
+                        '0', '.', '+/-', '/', '*', '-',
+                        '=','⌫', 'Exit']
 
-        def add_to_entry(char):
-            entry.insert(tk.END, char)
+                row = 1
+                col = 0
+                for button in buttons:
+                    if button == '=':
+                        command = lambda x=button: self.calculate()
+                    elif button == 'Exit':
+                        command = lambda x=button: master.quit()
+                    elif button == 'AC':
+                        command = lambda x=button: self.clear()
+                    elif button == '⌫':
+                        command = lambda x=button: self.backspace()    
+                    else:
+                        command = lambda x=button: self.button_click(x)
+                    tk.Button(master, text=button, width=6, height=2, font=('Arial', 16), command=command, bd=0, bg='#D9D9D9', fg='#333333').grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
+                    col += 1
+                    if col > 5:
+                        col = 0
+                        row += 1
 
+            def button_click(self, text):
+                if text == 'sqrt':
+                    # Calculate the square root of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.sqrt(current)) # type: ignore
+                elif text == 'sin':
+                    # Calculate the sine of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.sin(current)) # type: ignore
+                elif text == 'cos':
+                    # Calculate the cosine of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.cos(current)) # type: ignore
+                elif text == 'tan':
+                    # Calculate the tangent of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.tan(current))# type: ignore
+                elif text == 'log':
+                    # Calculate the base-10 logarithm of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.log10(current))# type: ignore
+                elif text == 'ln':
+                    # Calculate the natural logarithm of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.log(current))# type: ignore
+                elif text == 'x^2':
+                    # Calculate the square of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, current**2)# type: ignore
+                elif text == 'x^y':
+                    # Calculate the power of a number
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, current)# type: ignore
+                    self.power = current
+                    self.operator = '^'
+                elif text == 'e^x':
+                    # Calculate e to the power of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.exp(current))# type: ignore
+                elif text == '1/x':
+                    # Calculate the reciprocal of the number in the entry box
+                    current = float(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, 1/current)# type: ignore
+                elif text == 'pi':
+                    # Insert the value of pi into the entry box
+                    self.entry.insert(tk.END, math.pi)# type: ignore
+                elif text == 'x!':
+                    # Calculate the factorial of the number in the entry box
+                    current = int(self.entry.get())
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, math.factorial(current))# type: ignore
+                else:
+                    self.entry.insert(tk.END, text)
+            def clear(self):
+                # Clear the entry box
+                self.entry.delete(0, tk.END)
+
+            def calculate(self):
+                # Evaluate the expression in the entry box
+                try:
+                    self.expression = self.entry.get()
+                    self.result = eval(self.expression)
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, self.result)
+                except:
+                    self.entry.delete(0, tk.END)
+                    self.entry.insert(0, "Error")
+            def backspace(self):
+                current_text = self.entry.get()
+                new_text = current_text[:-1]
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, new_text)
+                
         root = tk.Tk()
-        root.title("Calculator")
-
-        entry = tk.Entry(root, width=40, font=("Arial", 14))
-        entry.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
-
-        button_1 = tk.Button(root, text="1", command=lambda: add_to_entry("1"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_1.grid(row=1, column=0)
-
-        button_2 = tk.Button(root, text="2", command=lambda: add_to_entry("2"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_2.grid(row=1, column=1)
-
-        button_3 = tk.Button(root, text="3", command=lambda: add_to_entry("3"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_3.grid(row=1, column=2)
-
-        button_divide = tk.Button(root, text="/", command=lambda: add_to_entry("/"), height=3, width=8, font=("Arial", 14), bg='#e6b8af')
-        button_divide.grid(row=1, column=3)
-
-        button_4 = tk.Button(root, text="4", command=lambda: add_to_entry("4"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_4.grid(row=2, column=0)
-
-        button_5 = tk.Button(root, text="5", command=lambda: add_to_entry("5"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_5.grid(row=2, column=1)
-
-        button_6 = tk.Button(root, text="6", command=lambda: add_to_entry("6"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_6.grid(row=2, column=2)
-
-        button_multiply = tk.Button(root, text="*", command=lambda: add_to_entry("*"), height=3, width=8, font=("Arial", 14), bg='#e6b8af')
-        button_multiply.grid(row=2, column=3)
-
-        button_7 = tk.Button(root, text="7", command=lambda: add_to_entry("7"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_7.grid(row=3, column=0)
-
-        button_8 = tk.Button(root, text="8", command=lambda: add_to_entry("8"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_8.grid(row=3, column=1)
-
-        button_9 = tk.Button(root, text="9", command=lambda: add_to_entry("9"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_9.grid(row=3, column=2)
-
-        button_subtract = tk.Button(root, text="-", command=lambda: add_to_entry("-"), height=3, width=8, font=("Arial", 14), bg='#e6b8af')
-        button_subtract.grid(row=3, column=3)
-
-        button_clear = tk.Button(root, text="C", command=clear, height=3, width=8, font=("Arial", 14), bg='#e6e6e6')
-        button_clear.grid(row=4, column=0)
-
-        button_0 = tk.Button(root, text="0", command=lambda: add_to_entry("0"), height=3, width=8, font=("Arial", 14), bg='#cfe2f3')
-        button_0.grid(row=4, column=1)
-
-        button_decimal = tk.Button(root, text=".", command=lambda: add_to_entry("."), height=3, width=8, font=("Arial", 14), bg='#e6e6e6')
-        button_decimal.grid(row=4, column=2)
-
-        button_add = tk.Button(root, text="+", command=lambda: add_to_entry("+"), height=3, width=8, font=("Arial", 14), bg='#e6b8af')
-        button_add.grid(row=4, column=3)
-
-        button_equals = tk.Button(root, text="=", command=calculate, height=3, width=8, font=("Arial", 14), bg='#b7e1cd')
-        button_equals.grid(row=5, column=0, columnspan=4, padx=5, pady=5)
-
+        app = ScientificCalculator(root)
         root.mainloop()
 ##########################################################################################
     def show_simulators(self):
