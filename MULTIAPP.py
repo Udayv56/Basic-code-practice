@@ -16,7 +16,8 @@ import datetime as dt
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-
+from tkinter.filedialog import asksaveasfilename
+import math
 class App:
     def __init__(self, master):
         self.master = master
@@ -63,74 +64,75 @@ class App:
    
 #game functions
     def play_tic_tac_toe(self):
-        # Initialize variables
-        player = "X"
-        moves = 0
-        winner = False
-        board = [["", "", ""], ["", "", ""], ["", "", ""]]
-
-        # Define functions to check for winner and end game
-        def check_winner(board):
-            # Check for rows
-            for row in board:
-                if row[0] == row[1] == row[2] != "":
-                    return True
-            # Check for columns
-            for col in range(3):
-                if board[0][col] == board[1][col] == board[2][col] != "":
-                    return True
-            # Check for diagonals
-            if board[0][0] == board[1][1] == board[2][2] != "":
-                return True
-            if board[0][2] == board[1][1] == board[2][0] != "":
-                return True
-            return False
-
-        def end_game(message):
-            nonlocal winner
-            winner = True
-            label.config(text=message)
-            for button in buttons:
-                button.config(state=tk.DISABLED)
-
-        # Define function to handle button clicks
-        def button_click(row, col):
-            nonlocal player, moves, board
-            if board[row][col] == "":
-                board[row][col] = player
-                buttons[row][col].config(text=player, state=tk.DISABLED)
-                moves += 1
-                if check_winner(board):
-                    end_game(f"Player {player} wins!")
-                elif moves == 9:
-                    end_game("It's a tie!")
-                else:
-                    player = "O" if player == "X" else "X"
-                    label.config(text=f"Player {player}'s turn.")
-
-        # Create tkinter window and widgets
-        window = tk.Tk()
-        window.title("Tic Tac Toe")
-        label = tk.Label(window, text=f"Player {player}'s turn.", font=("Helvetica", 16), pady=10)
-        label.grid(row=0, column=0, columnspan=3)
-        buttons = []
-        for row in range(3):
-            button_row = []
-            for col in range(3):
-                button = tk.Button(window, text="", font=("Helvetica", 16), height=2, width=4,
-                                    command=lambda row=row, col=col: button_click(row, col))
-                button.grid(row=row+1, column=col, padx=5, pady=5)
-                button_row.append(button)
-            buttons.append(button_row)
-
-        # Start tkinter event loop
-        window.mainloop()
-   
-        winner_label = tk.Label(window, font=("Helvetica", 16))
-        winner_label.pack()
        
-        # Start tkinter event loop
-        window.mainloop()
+
+        class TicTacToe:
+            def play(self):
+                # Initialize variables
+                player = "X"
+                moves = 0
+                winner = False
+                board = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
+
+                # Define functions to check for winner and end game
+                def check_winner(board):
+                    # Check for rows
+                    for row in board:
+                        if row[0] == row[1] == row[2] == row[3] != "":
+                            return True
+                    # Check for columns
+                    for col in range(4):
+                        if board[0][col] == board[1][col] == board[2][col] == board[3][col] != "":
+                            return True
+                    # Check for diagonals
+                    if board[0][0] == board[1][1] == board[2][2] == board[3][3] != "":
+                        return True
+                    if board[0][3] == board[1][2] == board[2][1] == board[3][0] != "":
+                        return True
+                    return False
+
+                def end_game(message):
+                    nonlocal winner
+                    winner = True
+                    label.config(text=message)
+                    for button in buttons:
+                        for b in button:
+                            b.config(state=tk.DISABLED)
+
+                # Define function to handle button clicks
+                def button_click(row, col):
+                    nonlocal player, moves, board
+                    if board[row][col] == "":
+                        board[row][col] = player
+                        buttons[row][col].config(text=player, state=tk.DISABLED)
+                        moves += 1
+                        if check_winner(board):
+                            end_game(f"Player {player} wins!")
+                        elif moves == 16:
+                            end_game("It's a tie!")
+                        else:
+                            player = "O" if player == "X" else "X"
+                            label.config(text=f"Player {player}'s turn.")
+
+                # Create tkinter window and widgets
+                window = tk.Tk()
+                window.title("Tic Tac Toe")
+                label = tk.Label(window, text=f"Player {player}'s turn.", font=("Helvetica", 16), pady=10)
+                label.grid(row=0, column=0, columnspan=4)
+                buttons = []
+                for row in range(4):
+                    button_row = []
+                    for col in range(4):
+                        button = tk.Button(window, text="", font=("Helvetica", 16), height=2, width=4,
+                                            command=lambda row=row, col=col: button_click(row, col))
+                        button.grid(row=row+1, column=col, padx=5, pady=5)
+                        button_row.append(button)
+                    buttons.append(button_row)
+
+                # Start tkinter event loop
+                window.mainloop()
+        
+        TicTacToe().play()
     def number_guessing_game(self):
         # Initialize game variables
         # Initialize game variables
@@ -253,7 +255,7 @@ class App:
         PADDLE_HEIGHT = 100
         BALL_RADIUS = 10
         PADDLE_SPEED = 5
-        BALL_SPEED = 2.5
+        BALL_SPEED = 5
         # Initialize game window
         root = tk.Tk()
         root.title("Pong Game")
@@ -910,7 +912,7 @@ class App:
     def show_apps(self):
         self.apps_window = tk.Toplevel(self.master)
         self.apps_window.title("Apps")
-        self.apps_window.geometry("300x250")
+        self.apps_window.geometry("300x300")
         
         self.label = tk.Label(self.apps_window, text="Choose an App:")
         self.label.pack(pady=10)
@@ -929,6 +931,9 @@ class App:
 
         self.ex_button = tk.Button(self.apps_window, text="Expense tracker", command=self.exp)
         self.ex_button.pack(pady=5)
+
+        self.note_button = tk.Button(self.apps_window, text="NotePad", command=self.note)
+        self.note_button.pack(pady=5)
 
 # Apps function
     def paint_app(self):
@@ -1305,7 +1310,56 @@ class App:
         root = tk.Tk()
         expense_tracker = ExpenseTracker(root)
         root.mainloop()
+    def note(self):
+        class Notepad:
+            def __init__(self, master):
+                self.master = master
+                master.title("Untitled - Notepad")
+                self.text_area = tk.Text(master, undo=True)
+                self.text_area.pack(fill="both", expand=True)
 
+                self.menu_bar = tk.Menu(master)
+                self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
+                self.file_menu.add_command(label="New", command=self.new_file)
+                self.file_menu.add_command(label="Open", command=self.open_file)
+                self.file_menu.add_command(label="Save", command=self.save_file)
+                self.file_menu.add_command(label="Save As", command=self.save_file_as)
+                self.file_menu.add_separator()
+                self.file_menu.add_command(label="Exit", command=master.quit)
+                self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+
+                master.config(menu=self.menu_bar)
+
+            def new_file(self):
+                self.text_area.delete("1.0", tk.END)
+                self.master.title("Untitled - Notepad")
+
+            def open_file(self):
+                file_path = tk.filedialog.askopenfilename() # type: ignore
+                if file_path:
+                    with open(file_path, "r") as file:
+                        self.text_area.insert(tk.END, file.read())
+                    self.master.title(f"{file_path} - Notepad")
+
+            def save_file(self):
+                if self.master.title() == "Untitled - Notepad":
+                    self.save_file_as()
+                else:
+                    file_path = self.master.title().replace(" - Notepad", "")
+                    with open(file_path, "w") as file:
+                        file.write(self.text_area.get("1.0", tk.END))
+
+            def save_file_as(self):
+                file_path = asksaveasfilename(defaultextension=".txt")
+                if file_path:
+                    with open(file_path, "w") as file:
+                        file.write(self.text_area.get("1.0", tk.END))
+                    self.master.title(f"{file_path} - Notepad")
+
+        root = tk.Tk()
+        notepad = Notepad(root)
+        root.mainloop()
+        
 if __name__ == "__main__":
     root = tk.Tk()
     app = App(root)
