@@ -194,7 +194,7 @@ int main() {
     Library library;
     LoginSystem loginSystem;
 
-    cout << "Welcome to BOOKCHECK. Please enter your credintials to proceed!" << endl;
+    cout << "Welcome to BOOKCHECK. Please enter your credentials to proceed!" << endl;
     cout<< "Made by Uday Verma"<<endl;
 
     string username, password;
