@@ -176,7 +176,7 @@ private:
 
 public:
     LoginSystem() {
-        users["admin"] = " "; //ADD your own password
+        users["admin"] = "admin"; //ADD your own password if you want to
     }
 
     bool login(string username, string password) {
